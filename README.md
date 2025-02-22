@@ -12,6 +12,10 @@ We've build some custom looms that let the original pedals/steering/shifter plug
 
 We've also replaced the original CRT monitor with a random old LCD monitor and mounted it in the cabinet.
 
+![Outrun Arcade Cabinet](https://github.com/senwerks/outrun-arcade/blob/main/meta/outrun-arcade-01.jpg)
+![Outrun Arcade Cabinet](https://github.com/senwerks/outrun-arcade/blob/main/meta/outrun-arcade-02.jpg)
+
+
 ## TODO
 
 - [ ] Finish getting the Arduino Pro Micro to read the original pedals/steering/shifter and send the inputs to the PC (semi-working)
