@@ -8,10 +8,28 @@
 * Shifter: 2-pin, White and Blue. Not wired to Pro Micro yet.
 */
 
-#include "src/Joystick.h";
+#include "src/Joystick.h"
 /* Joystick library example code: https://github.com/MHeironimus/ArduinoJoystickLibrary/tree/master/examples */
 
-Joystick_ Joystick;
+// Example constructor that enables throttle, brake, and steering
+Joystick_ Joystick(
+  JOYSTICK_DEFAULT_REPORT_ID, 
+  JOYSTICK_TYPE_JOYSTICK,
+  2,  // Button count (change as needed)
+  0,  // Hat switch count
+  false, // include X axis?
+  false, // include Y axis?
+  false, // include Z axis?
+  false, // include Rx axis?
+  false, // include Ry axis?
+  false, // include Rz axis?
+  false, // include rudder?
+  true,  // include throttle?
+  false, // include accelerator? (distinct from throttle)
+  true,  // include brake?
+  true   // include steering?
+);
+
 
 const int throttlePin = A1;
 const int brakePin = A2;
@@ -46,7 +64,7 @@ void loop() {
     Serial.print("Throttle Raw: ");
     Serial.print(throttleVal);
     Serial.print(", ");
-    int throttleMapped = map(throttleVal,0,1023,0,255);
+    int throttleMapped = map(throttleVal,0,1023,255, 0);
     Serial.print("Throttle Mapped: ");
     Serial.print(throttleMapped);
     Serial.print(", ");
@@ -57,7 +75,7 @@ void loop() {
     Serial.print("Brake Raw: ");
     Serial.print(brakeVal);
     Serial.print(", ");
-    int brakeMapped = map(brakeVal,0,1023,0,255);
+    int brakeMapped = map(brakeVal,0,1023,255, 0);
     Serial.print("Brake Mapped: ");
     Serial.print(brakeMapped);
     Serial.print(", ");
@@ -69,7 +87,7 @@ void loop() {
     Serial.print("Steering Raw: ");
     Serial.print(steeringVal);
     Serial.print(", ");
-    int steeringMapped = map(steeringVal,0,1023,0,255);
+    int steeringMapped = map(steeringVal,0,1023,255,0);
     Serial.print("Steering Mapped: ");
     Serial.print(steeringMapped);
     Serial.print(", ");
