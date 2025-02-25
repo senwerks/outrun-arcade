@@ -82,15 +82,17 @@ void loop() {
     updateControl("Steering", steeringPin, Joystick.setSteering);
 
     /* Shifter, untested on unit yet so not sure what values we need or what we're going to do with this bit */
-    int currentShifterState = !digitalRead(shifterPin);
-	if (currentShifterState != lastShifterState) {
-        Joystick.setButton(0, currentShifterState);
-        lastShifterState = currentShifterState;
-    }
-    if (DEBUG) {
-        Serial.print("Shifter Value: ");
-        Serial.println(currentShifterState);
-    }
-
-    delay(10); // Polling delay, unsure if really needed
+    int switchState = digitalRead(shifterPin);
+  
+  // If switch is pressed => forward
+  // If switch is not pressed => reverse
+  if (switchState == LOW) {
+    Joystick.setYAxis(255); // forward
+  } else {
+    Joystick.setYAxis(0);   // reverse
+  }
+    Serial.print("Shifter Value: ");
+    Serial.println(switchState);
+  
+    delay(5); // small delay for switch stability
 }
