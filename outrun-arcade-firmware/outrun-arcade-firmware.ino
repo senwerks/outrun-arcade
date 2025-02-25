@@ -13,7 +13,7 @@
 
 // Example constructor that enables throttle, brake, and steering
 Joystick_ Joystick(
-  JOYSTICK_DEFAULT_REPORT_ID, 
+  JOYSTICK_DEFAULT_REPORT_ID,
   JOYSTICK_TYPE_JOYSTICK,
   2,  // Button count (change as needed)
   0,  // Hat switch count
@@ -30,18 +30,35 @@ Joystick_ Joystick(
   true   // include steering?
 );
 
-
+// Pin Input Constants
 const int throttlePin = A1;
 const int brakePin = A2;
 const int steeringPin = A3;
 const int shifterPin = 15; // Not connected or tested yet
 
-int throttleVal;
-int brakeVal;
-int steeringVal;
-int shifterVal;
+// Input Mapping Constants
+const int ANALOG_MIN = 0;
+const int ANALOG_MAX = 1023;
+const int MAPPED_MIN = 255;
+const int MAPPED_MAX = 0;
 
 int lastShifterState = 0;
+
+// Helper function for reading, mapping, and updating a control
+updateControl("Throttle", throttlePin, [](int value){ Joystick.setThrottle(value); });
+    int rawValue = analogRead(pin);
+    int mappedValue = map(rawValue, ANALOG_MIN, ANALOG_MAX, MAPPED_MIN, MAPPED_MAX);
+    if (DEBUG) {
+        Serial.print(label);
+        Serial.print(" Raw: ");
+        Serial.print(rawValue);
+        Serial.print(", ");
+        Serial.print("Mapped: ");
+        Serial.println(mappedValue);
+        Serial.print(", ");
+    }
+    updateFunc(mappedValue);
+}
 
 void setup() {
     Serial.begin(9600);
@@ -50,7 +67,7 @@ void setup() {
     pinMode(steeringPin, INPUT);
     pinMode(shifterPin, INPUT_PULLUP);
 
-    // Change these if we want, instead of mapping them
+    // Test with these functions instead of mapping
     // Joystick.setAcceleratorRange(0, 260);
     // Joystick.setBrakeRange(0, 260);
     // Joystick.setSteeringRange(0, 300);
@@ -59,40 +76,10 @@ void setup() {
 }
 
 void loop() {
-    /* Throttle */
-    int throttleVal = analogRead(throttlePin);
-    Serial.print("Throttle Raw: ");
-    Serial.print(throttleVal);
-    Serial.print(", ");
-    int throttleMapped = map(throttleVal,0,1023,255, 0);
-    Serial.print("Throttle Mapped: ");
-    Serial.print(throttleMapped);
-    Serial.print(", ");
-    Joystick.setThrottle(throttleMapped);
 
-    /* Brakes */
-    int brakeVal = analogRead(brakePin);
-    Serial.print("Brake Raw: ");
-    Serial.print(brakeVal);
-    Serial.print(", ");
-    int brakeMapped = map(brakeVal,0,1023,255, 0);
-    Serial.print("Brake Mapped: ");
-    Serial.print(brakeMapped);
-    Serial.print(", ");
-    Joystick.setBrake(brakeMapped);
-    //Joystick.setBrake(brakeVal);
-
-    /* Steering */
-    int steeringVal = analogRead(steeringPin);
-    Serial.print("Steering Raw: ");
-    Serial.print(steeringVal);
-    Serial.print(", ");
-    int steeringMapped = map(steeringVal,0,1023,255,0);
-    Serial.print("Steering Mapped: ");
-    Serial.print(steeringMapped);
-    Serial.print(", ");
-    Joystick.setSteering(steeringMapped);
-    //Joystick.setSteering(steeringVal);
+    updateControl("Throttle", throttlePin, Joystick.setThrottle);
+    updateControl("Brake", brakePin, Joystick.setBrake);
+    updateControl("Steering", steeringPin, Joystick.setSteering);
 
     /* Shifter, untested on unit yet so not sure what values we need or what we're going to do with this bit */
     int currentShifterState = !digitalRead(shifterPin);
@@ -100,6 +87,10 @@ void loop() {
         Joystick.setButton(0, currentShifterState);
         lastShifterState = currentShifterState;
     }
-    Serial.print("Shifter Value: ");
-    Serial.println(currentShifterState);
+    if (DEBUG) {
+        Serial.print("Shifter Value: ");
+        Serial.println(currentShifterState);
+    }
+
+    delay(10); // Polling delay, unsure if really needed
 }
