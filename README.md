@@ -18,10 +18,11 @@ We've also replaced the original CRT monitor with a random old LCD monitor and m
 
 ## TODO
 
-- [ ] Finish getting the Arduino Pro Micro to read the original pedals/steering/shifter and send the inputs to the PC (semi-working)
-- [ ] Design and 3D print a custom shroud that matches the LCD monitor to the original CRT monitor bezel
+- [x] Finish getting the Arduino Pro Micro to read the original pedals/steering/shifter and send the inputs to the PC
+- [ ] Design/print a PETG version of the broken steering gear so we can test-reassemble the steering system
+- [ ] Design and 3D print a custom shroud that matches the LCD monitor to the original CRT monitor bezel (megabot??)
+- [ ] Order a metal-printed copy of the gear once we know it works
 - [ ] Tidy up the wiring and integrate power to the original cable
-- [ ] Rebuild the original steering gears which are currently broken (maybe get them 3D printed in metal)
 - [ ] Mount the PC better in the cabinet and build a see-through arcrylic panel to protect it (and show it off!)
 - [ ] Put a beasty sound system in it for that sweet sweet immersion
 - [ ] Get the original coin mech working and tie it into Steam as an input? Or a coin/token unlocks the screensaver?
