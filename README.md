@@ -32,6 +32,12 @@ We've also replaced the original CRT monitor with a random old LCD monitor and m
 
 ## Progress Photos
 
+First we traced and wired all the original major inputs (steering and pedals) into an Arduino Pro Micro, building new wiring looms that used the original cabinet plugs and converted them to JST so that it can all be reversed back. We then wrote firmware that converts the original analog inputs into digital signals emulating an Xbox 360 controller, allowing them to be mapped in games like any other controller.
+
+![Sega OutRun with Arduino Pro Micro handling inputs](https://github.com/senwerks/outrun-arcade/blob/main/meta/outrun-arcade-old-inputs.jpg)
+
+This worked for basic testing, but without a shifter you get stuck in a wall pretty quickly, unable to reverse back onto the track!
+
 The original shifter was a "High/Low" toggle lever that closed a switch when moved in one direction and released that switch when moved in the other. We couldn't think of a simple way to make a single switch be mapped to "Shift Up" and "Shift Down" in the games, so we had to convert the toggle lever into a "return to center" lever using springs, and then 3D printed a switch-plate that holds 2 switches either side. We then added another Pro Micro and used that to map those switches to simulate Xbox controller buttons.
 
 ![Original OutRun Shifter](https://github.com/senwerks/outrun-arcade/blob/main/meta/outrun-arcade-old-shifter.jpg)
