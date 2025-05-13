@@ -1,98 +1,89 @@
 /*
-* Outrun Arcade Controller Firmware by Obsolete Nerd
-* https://github.com/senwerks/outrun-arcade
-*
-* Throttle: 3-pin, VCC to Yellow/Black wire, GND to White/Blue wire, DATA to Blue wire. Wired to A1 on Pro Micro.
-* Brake: 3-pin, VCC to Yellow/Green wire, GND to White/Green wire, DATA to Green wire. Wired to A2 on Pro Micro.
-* Steering: 3-pin, VCC to Yellow/Red wire, GND to White/Red wire, DATA is Red wire. Wired to A3 on Pro Micro.
-* Shifter: 2-pin, White and Blue. Not wired to Pro Micro yet.
+* Outrun Arcade Controller - Xbox Controller Emulation
+* Emulates standard Xbox controller inputs for Unity games
 */
-
 #include "src/Joystick.h"
-/* Joystick library example code: https://github.com/MHeironimus/ArduinoJoystickLibrary/tree/master/examples */
 
-// Example constructor that enables throttle, brake, and steering
+// Create a gamepad that mimics Xbox controller layout
 Joystick_ Joystick(
   JOYSTICK_DEFAULT_REPORT_ID,
-  JOYSTICK_TYPE_JOYSTICK,
-  2,  // Button count (change as needed)
-  0,  // Hat switch count
-  false, // include X axis?
-  false, // include Y axis?
-  false, // include Z axis?
-  false, // include Rx axis?
-  false, // include Ry axis?
-  false, // include Rz axis?
-  false, // include rudder?
-  true,  // include throttle?
-  false, // include accelerator? (distinct from throttle)
-  true,  // include brake?
-  true   // include steering?
+  JOYSTICK_TYPE_GAMEPAD,
+  0,     // No buttons for now
+  0,     // No hat switch
+  true,  // X axis (Left Stick horizontal)
+  true,  // Y axis (Left Stick vertical)
+  true,  // Z axis (Left Trigger)
+  true,  // Rx axis (Right Stick horizontal)
+  true,  // Ry axis (Right Stick vertical)  
+  true,  // Rz axis (Right Trigger)
+  false, // No rudder
+  false, // No throttle
+  false, // No accelerator
+  false, // No brake
+  false  // No steering
 );
 
 // Pin Input Constants
 const int throttlePin = A1;
 const int brakePin = A2;
 const int steeringPin = A3;
-const int shifterPin = 15; // Not connected or tested yet
 
 // Input Mapping Constants
 const int ANALOG_MIN = 0;
 const int ANALOG_MAX = 1023;
-const int MAPPED_MIN = 255;
-const int MAPPED_MAX = 0;
-
-int lastShifterState = 0;
-
-// Helper function for reading, mapping, and updating a control
-updateControl("Throttle", throttlePin, [](int value){ Joystick.setThrottle(value); });
-    int rawValue = analogRead(pin);
-    int mappedValue = map(rawValue, ANALOG_MIN, ANALOG_MAX, MAPPED_MIN, MAPPED_MAX);
-    if (DEBUG) {
-        Serial.print(label);
-        Serial.print(" Raw: ");
-        Serial.print(rawValue);
-        Serial.print(", ");
-        Serial.print("Mapped: ");
-        Serial.println(mappedValue);
-        Serial.print(", ");
-    }
-    updateFunc(mappedValue);
-}
 
 void setup() {
-    Serial.begin(9600);
-    pinMode(throttlePin, INPUT);
-    pinMode(brakePin, INPUT);
-    pinMode(steeringPin, INPUT);
-    pinMode(shifterPin, INPUT_PULLUP);
-
-    // Test with these functions instead of mapping
-    // Joystick.setAcceleratorRange(0, 260);
-    // Joystick.setBrakeRange(0, 260);
-    // Joystick.setSteeringRange(0, 300);
-
-    Joystick.begin();
+  Serial.begin(9600);
+  pinMode(throttlePin, INPUT);
+  pinMode(brakePin, INPUT);
+  pinMode(steeringPin, INPUT);
+  
+  // Xbox controller style ranges
+  Joystick.setXAxisRange(0, 255);    // Left Stick X (0 = full left, 128 = center, 255 = full right)
+  Joystick.setYAxisRange(0, 255);    // Left Stick Y (0 = full up, 128 = center, 255 = full down)
+  Joystick.setZAxisRange(0, 255);    // Left Trigger (0 = released, 255 = fully pressed)
+  Joystick.setRxAxisRange(0, 255);   // Right Stick X
+  Joystick.setRyAxisRange(0, 255);   // Right Stick Y
+  Joystick.setRzAxisRange(0, 255);   // Right Trigger (0 = released, 255 = fully pressed)
+  
+  // Initialize centered positions for sticks
+  Joystick.setYAxis(128);   // Center left stick Y
+  Joystick.setRxAxis(128);  // Center right stick X
+  Joystick.setRyAxis(128);  // Center right stick Y
+  
+  Joystick.begin();
+  
+  Serial.println("Xbox-style gamepad initialized");
 }
 
 void loop() {
-
-    updateControl("Throttle", throttlePin, Joystick.setThrottle);
-    updateControl("Brake", brakePin, Joystick.setBrake);
-    updateControl("Steering", steeringPin, Joystick.setSteering);
-
-    /* Shifter, untested on unit yet so not sure what values we need or what we're going to do with this bit */
-    int switchState = digitalRead(shifterPin);
+  // Read analog inputs
+  int throttleRaw = analogRead(throttlePin);
+  int brakeRaw = analogRead(brakePin);
+  int steeringRaw = analogRead(steeringPin);
   
-  // If switch is pressed => forward
-  // If switch is not pressed => reverse
-  if (switchState == LOW) {
-    Joystick.setYAxis(255); // forward
-  } else {
-    Joystick.setYAxis(0);   // reverse
-  }
-    Serial.print("Shifter Value: ");
-    Serial.println(switchState);
+  // Map to Xbox controller ranges
+  // Steering: Left Stick X (0-255, 128 center)
+  int steeringValue = map(steeringRaw, ANALOG_MIN, ANALOG_MAX, 255, 0);
   
-    delay(5); // small delay for switch stability
+  // Right Trigger: throttle (0-255)
+  int throttleValue = map(throttleRaw, ANALOG_MIN, ANALOG_MAX, 0, 255);
+  
+  // Left Trigger: brake (0-255)
+  int brakeValue = map(brakeRaw, ANALOG_MIN, ANALOG_MAX, 0, 255);
+  
+  // Set the axes
+  Joystick.setXAxis(steeringValue);   // Left Stick X (LS horizontal)
+  Joystick.setZAxis(brakeValue);      // Left Trigger (LT)
+  Joystick.setRzAxis(throttleValue);  // Right Trigger (RT)
+  
+  // Debug output
+  Serial.print("LS-X: ");
+  Serial.print(steeringValue);
+  Serial.print(" | RT: ");
+  Serial.print(throttleValue);
+  Serial.print(" | LT: ");
+  Serial.println(brakeValue);
+  
+  delay(5);
 }
